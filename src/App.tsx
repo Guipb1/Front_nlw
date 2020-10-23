@@ -3,6 +3,7 @@ import React from 'react';
 
 /*as importacoes de CSS, HTML,sao feitas no arquivo javascritp*/
 import './styles/global.css';
+import 'leaflet/dist/leaflet.css'; /*estilização padrao do mapa*/
 
 import Routes from './routes';
 
