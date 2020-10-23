@@ -1,21 +1,39 @@
-import React from 'react';
+import React, {useEffect,useState} from 'react'; // tres conseitos do react = componente,propriedades e estado =  qualquer tipo de info que quero armazenar no componente
 import {Link} from 'react-router-dom';
 import {FiPlus, FiArrowRight} from 'react-icons/fi';
 import {Map, TileLayer, Marker, Popup} from 'react-leaflet'; /*tilelayer = servidor para pegar as imagens do mapa,ruas,etc */
-import Leaflet from 'leaflet';
-import 'leaflet/dist/leaflet.css'; /*estilização padrao do mapa*/
+//import Leaflet from 'leaflet';
+
 import mapMarkerImg from '../images/map-marker.svg';
 import '../styles/pages/orphanages-map.css';
+import happMapIcon from '../components/Map/happMapIcon';
+import api from '../services/api';
 
-const mapIcon = Leaflet.icon({
+/*const mapIcon = Leaflet.icon({
     iconUrl:mapMarkerImg,
 
     iconSize:[58, 68],
     iconAnchor:[29,68],
     popupAnchor: [170, 2]
-})
+})*/
 
-function OrphanagesMap() {
+interface Orphanage {
+    id:number;
+    latitude:number;
+    longitude:number;
+    name:string;
+
+}
+
+function OrphanagesMap() { 
+    const [orphanages,setOrphanages] = useState<Orphanage[]>([]);// toda variavel que precisa ser alterada pelo proprio component vou salvar no estado
+
+    
+    useEffect(() => { // execute essa funcao x quando alguma das variais dentro de []  for alterada / primeiro paramentro = qual acao quero executar e o segundo quandp quero executar
+        api.get('orphanages').then(Response => {
+            setOrphanages(Response.data);
+        });
+    },[]); 
     return (
         <div id="page-map">
             <aside>
@@ -37,22 +55,29 @@ function OrphanagesMap() {
                 style={{width: '100%' , height:'100%'}}    /*o primeiro {} indica que quero incluir um codigo js dentro da propriedade e o outro {} indica um objeto js*/
             >
                 <TileLayer url="https://a.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                <Marker
-                    icon={mapIcon}
-                    position = {[-25.4212124,-49.130795]}
+
+                
+             {orphanages.map((orphanage,i) => {
+                 return (
+                    <Marker
+                    icon={happMapIcon}
+                    position = {[orphanage.latitude, orphanage.latitude]}
+                    key={i}
                 >
                     <Popup closeButton= {false} minWidth={240} maxWidh={240} className= "map-popup">
-                        Lar dos meninos
-                        <Link to="">
+                        {orphanage.name}
+                        <Link to={`/orphanages/${orphanage.id}`}>
                             <FiArrowRight size={20} color ="#FFF"/>
                         </Link>
 
                     </Popup>
                     
                 </Marker>
+                 )
+             })}
             </Map>
 
-            <Link to="" className="create-orphanage">
+            <Link to="/orphanages/create" className="create-orphanage">
                 <FiPlus size={32} color="#FFF" />
             </Link>
         </div>
